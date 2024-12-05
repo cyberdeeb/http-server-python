@@ -2,7 +2,7 @@ import socket  # noqa: F401
 
 def main():
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
-    server_socket.accept()[0].sendall(b"HTTP/1.1 200 OK\r\n\r\n")
+    #server_socket.accept()[0].sendall(b"HTTP/1.1 200 OK\r\n\r\n")
 
     if extract_path(server_socket.recv(1024)) == '':
         server_socket.accept()[0].sendall(b"HTTP/1.1 200 OK\r\n\r\n")
