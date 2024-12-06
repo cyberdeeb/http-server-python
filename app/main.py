@@ -1,4 +1,5 @@
 import socket
+import re
 
 def main():
     # Create a server socket
@@ -14,14 +15,26 @@ def main():
         request_data = client_socket.recv(1024).decode("utf-8")
         print(f"Request data:\n{request_data}")
 
-        # Extract the path from the HTTP request
-        path = extract_path_and_body(request_data)[0]
+        # Extract the path and body from the HTTP request
+        path, body = extract_path_and_body(request_data)
 
         # Determine the response based on the path
         if path == "/":
             response = b"HTTP/1.1 200 OK\r\n\r\n"
-        elif path == "/echo":
-            response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plainr\r\nContent-Length: {len(extract_path_and_body(request_data)[1])}\r\n{extract_path_and_body(request_data)[1]}"
+        elif path.startswith("/echo/"):
+            # Extract the dynamic part of the path
+            match = re.match(r"/echo/(.+)", path)
+            if match:
+                echoed_string = match.group(1)
+                response_body = echoed_string
+                response = (
+                    f"HTTP/1.1 200 OK\r\n"
+                    f"Content-Type: text/plain\r\n"
+                    f"Content-Length: {len(response_body)}\r\n\r\n"
+                    f"{response_body}"
+                ).encode("utf-8")
+            else:
+                response = b"HTTP/1.1 404 Not Found\r\n\r\n."
         else:
             response = b"HTTP/1.1 404 Not Found\r\n\r\n"
 
